@@ -38,7 +38,7 @@ RUN npm install -g pnpm@9.0.5
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
-# Install build dependencies for native modules (bcrypt, etc.)
+# Install build dependencies for native modules
 RUN apk add --no-cache python3 build-base
 
 # Set Python environment

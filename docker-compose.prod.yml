@@ -1,4 +1,4 @@
-# This is a production version of the Bigcapital docker-compose.yml file.
+# This is a production version of the Bigcapital docker-compose.yml file modified for PostgreSQL 17.
 
 version: '3.3'
 
@@ -17,6 +17,7 @@ services:
     restart: on-failure
     networks:
       - bigcapital_network
+      - unicell_unicell-network
 
   webapp:
     container_name: bigcapital-webapp
@@ -27,18 +28,17 @@ services:
 
   server:
     container_name: bigcapital-server
-    image: bigcapitalhq/server:latest
+    build:
+      context: ./
+      dockerfile: packages/server/Dockerfile.minimal
     expose:
       - '3000'
-    links:
-      - mysql
-      - redis
     depends_on:
-      - mysql
       - redis
     restart: on-failure
     networks:
       - bigcapital_network
+      - unicell_unicell-network
     environment:
       # Mail
       - MAIL_HOST=${MAIL_HOST}
@@ -50,7 +50,9 @@ services:
       - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 
       # Database
-      - DB_HOST=mysql
+      - POSTGRES_URL=${POSTGRES_URL}
+      - DB_HOST=unicell-postgres
+      - DB_PORT=5432
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_CHARSET=${DB_CHARSET}
@@ -131,37 +133,23 @@ services:
     container_name: bigcapital-database-migration
     build:
       context: ./
-      dockerfile: docker/migration/Dockerfile
+      dockerfile: packages/server/Dockerfile.minimal
     environment:
       # Database
-      - DB_HOST=mysql
+      - POSTGRES_URL=${POSTGRES_URL}
+      - DB_HOST=unicell-postgres
+      - DB_PORT=5432
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_CHARSET=${DB_CHARSET}
       - SYSTEM_DB_NAME=${SYSTEM_DB_NAME}
       # Tenants databases
       - TENANT_DB_NAME_PERFIX=${TENANT_DB_NAME_PERFIX}
-    depends_on:
-      - mysql
+    # Command override to run migrations
+    command: sh -c "node packages/server/dist/cli.js system:migrate:latest && node packages/server/dist/cli.js tenants:migrate:latest"
     networks:
       - bigcapital_network
-
-  mysql:
-    container_name: bigcapital-mysql
-    restart: on-failure
-    build:
-      context: ./docker/mariadb
-    environment:
-      - MYSQL_DATABASE=${SYSTEM_DB_NAME}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-    volumes:
-      - mysql:/var/lib/mysql
-    expose:
-      - '3306'
-    networks:
-      - bigcapital_network
+      - unicell_unicell-network
 
   redis:
     container_name: bigcapital-redis
@@ -184,10 +172,6 @@ services:
 
 # Volumes
 volumes:
-  mysql:
-    name: bigcapital_prod_mysql
-    driver: local
-
   redis:
     name: bigcapital_prod_redis
     driver: local
@@ -196,3 +180,5 @@ volumes:
 networks:
   bigcapital_network:
     driver: bridge
+  unicell_unicell-network:
+    external: true

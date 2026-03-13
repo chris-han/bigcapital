@@ -14,7 +14,7 @@ const providers = [
     inject: [ConfigService],
     useFactory: (configService: ConfigService) => ({
       client: configService.get('systemDatabase.client'),
-      connection: {
+      connection: configService.get('systemDatabase.postgresUrl') || {
         host: configService.get('systemDatabase.host'),
         user: configService.get('systemDatabase.user'),
         password: configService.get('systemDatabase.password'),

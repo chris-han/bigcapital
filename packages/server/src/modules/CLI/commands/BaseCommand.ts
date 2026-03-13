@@ -13,7 +13,7 @@ export abstract class BaseCommand extends CommandRunner {
   protected initSystemKnex(): any {
     return Knex({
       client: this.configService.get('systemDatabase.client'),
-      connection: {
+      connection: this.configService.get('systemDatabase.postgresUrl') || {
         host: this.configService.get('systemDatabase.host'),
         user: this.configService.get('systemDatabase.user'),
         password: this.configService.get('systemDatabase.password'),
