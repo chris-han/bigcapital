@@ -3,34 +3,37 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  const templateNameCol = isPostgres ? 'template_name' : 'templateName';
+
   return knex('pdf_templates').insert([
     {
       resource: 'SaleInvoice',
-      templateName: 'Standard Template',
+      [templateNameCol]: 'Standard Template',
       predefined: true,
       default: true,
     },
     {
       resource: 'SaleEstimate',
-      templateName: 'Standard Template',
+      [templateNameCol]: 'Standard Template',
       predefined: true,
       default: true,
     },
     {
       resource: 'SaleReceipt',
-      templateName: 'Standard Template',
+      [templateNameCol]: 'Standard Template',
       predefined: true,
       default: true,
     },
     {
       resource: 'CreditNote',
-      templateName: 'Standard Template',
+      [templateNameCol]: 'Standard Template',
       predefined: true,
       default: true,
     },
     {
       resource: 'PaymentReceive',
-      templateName: 'Standard Template',
+      [templateNameCol]: 'Standard Template',
       predefined: true,
       default: true,
     },

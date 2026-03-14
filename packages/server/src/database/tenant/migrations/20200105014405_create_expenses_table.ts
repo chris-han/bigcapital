@@ -1,5 +1,5 @@
-exports.up = function (knex) {
-  return knex.schema
+exports.up = async function (knex) {
+  await knex.schema
     .createTable('expenses_transactions', (table) => {
       table.increments();
       table.string('currency_code', 3);
@@ -20,10 +20,16 @@ exports.up = function (knex) {
       table.integer('user_id').unsigned().index();
       table.date('payment_date').index();
       table.timestamps();
-    })
-    .raw('ALTER TABLE `EXPENSES_TRANSACTIONS` AUTO_INCREMENT = 1000');
+    });
+
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  if (isPostgres) {
+    await knex.raw('ALTER SEQUENCE "expenses_transactions_id_seq" RESTART WITH 1000');
+  } else {
+    await knex.raw('ALTER TABLE expenses_transactions AUTO_INCREMENT = 1000');
+  }
 };
 
 exports.down = function (knex) {
-  return knex.schema.dropTableIfExists('expenses');
+  return knex.schema.dropTableIfExists('expenses_transactions');
 };

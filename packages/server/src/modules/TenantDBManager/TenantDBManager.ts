@@ -94,7 +94,12 @@ export class TenantDBManager {
    * @return {Promise<void>}
    */
   public async migrate(): Promise<void> {
-    await this.tenantKnex().migrate.latest();
+    try {
+      await this.tenantKnex().migrate.latest();
+    } catch (error) {
+      console.error('Tenant migration failed:', error);
+      throw error;
+    }
   }
 
   /**

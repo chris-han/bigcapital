@@ -29,7 +29,7 @@ const providers = [
         directory: configService.get('systemDatabase.seedsDir'),
       },
       pool: { min: 0, max: 7 },
-      ...knexSnakeCaseMappers({ upperCase: true }),
+      ...knexSnakeCaseMappers({ upperCase: false }),
     }),
   },
   {

@@ -1,6 +1,6 @@
 
-exports.up = function(knex) {
-  return knex.schema.createTable('manual_journals', (table) => {
+exports.up = async function(knex) {
+  await knex.schema.createTable('manual_journals', (table) => {
     table.increments();
     table.string('journal_number').index();
     table.string('reference').index();
@@ -13,7 +13,14 @@ exports.up = function(knex) {
     table.string('attachment_file');
     table.integer('user_id').unsigned().index();
     table.timestamps();
-  }).raw('ALTER TABLE `MANUAL_JOURNALS` AUTO_INCREMENT = 1000');
+  });
+
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  if (isPostgres) {
+    await knex.raw('ALTER SEQUENCE "manual_journals_id_seq" RESTART WITH 1000');
+  } else {
+    await knex.raw('ALTER TABLE manual_journals AUTO_INCREMENT = 1000');
+  }
 };
 
 exports.down = function(knex) {

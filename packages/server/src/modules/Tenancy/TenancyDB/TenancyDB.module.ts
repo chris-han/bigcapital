@@ -46,7 +46,7 @@ export const TenancyDatabaseProxyProvider = ClsModule.forFeatureAsync({
         directory: configService.get('tenantDatabase.seedsDir'),
       },
       pool: { min: 0, max: 7 },
-      ...knexSnakeCaseMappers({ upperCase: true }),
+      ...knexSnakeCaseMappers({ upperCase: false }),
     });
     lruCache.set(database, knexInstance);
 

@@ -1,5 +1,5 @@
-exports.up = function (knex) {
-  return knex.schema
+exports.up = async function (knex) {
+  await knex.schema
     .createTable('view_roles', (table) => {
       table.increments();
       table.integer('index');
@@ -12,8 +12,14 @@ exports.up = function (knex) {
         .index()
         .references('id')
         .inTable('views');
-    })
-    .raw('ALTER TABLE `VIEW_ROLES` AUTO_INCREMENT = 1000');
+    });
+
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  if (isPostgres) {
+    await knex.raw('ALTER SEQUENCE "view_roles_id_seq" RESTART WITH 1000');
+  } else {
+    await knex.raw('ALTER TABLE view_roles AUTO_INCREMENT = 1000');
+  }
 };
 
 exports.down = (knex) => knex.schema.dropTableIfExists('view_roles');

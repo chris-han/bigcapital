@@ -15,7 +15,7 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.alterTable('sale_invoices', (table) => {
+  return knex.schema.alterTable('sales_invoices', (table) => {
     table.dropColumn('discount');
     table.dropColumn('discount_type');
     table.dropColumn('adjustment');

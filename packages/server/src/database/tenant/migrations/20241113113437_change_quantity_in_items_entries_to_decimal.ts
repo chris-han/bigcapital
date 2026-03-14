@@ -3,6 +3,9 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  const qtyOnHandCol = isPostgres ? 'quantity_on_hand' : 'quantityOnHand';
+
   return knex.schema
     .table('items_entries', (table) => {
       table.decimal('quantity', 13, 3).alter();
@@ -14,7 +17,7 @@ exports.up = function (knex) {
       table.decimal('quantity', 13, 3).alter();
     })
     .table('items', (table) => {
-      table.decimal('quantityOnHand', 13, 3).alter();
+      table.decimal(qtyOnHandCol, 13, 3).alter();
     });
 };
 
@@ -23,6 +26,9 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  const qtyOnHandCol = isPostgres ? 'quantity_on_hand' : 'quantityOnHand';
+
   return knex.schema
     .table('items_entries', (table) => {
       table.integer('quantity').alter();
@@ -34,6 +40,6 @@ exports.down = function (knex) {
       table.integer('quantity').alter();
     })
     .table('items', (table) => {
-      table.integer('quantityOnHand').alter();
+      table.integer(qtyOnHandCol).alter();
     });
 };

@@ -28,7 +28,7 @@ export abstract class BaseCommand extends CommandRunner {
         directory: this.configService.get('systemDatabase.seedsDir'),
       },
       pool: { min: 0, max: 7 },
-      ...knexSnakeCaseMappers({ upperCase: true }),
+      ...knexSnakeCaseMappers({ upperCase: false }),
     });
   }
 
@@ -53,7 +53,7 @@ export abstract class BaseCommand extends CommandRunner {
         min: 0,
         max: 5,
       },
-      ...knexSnakeCaseMappers({ upperCase: true }),
+      ...knexSnakeCaseMappers({ upperCase: false }),
     });
   }
 

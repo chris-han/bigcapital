@@ -1,6 +1,10 @@
 exports.up = function (knex) {
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  const refTypeCol = isPostgres ? 'reference_type' : 'referenceType';
+  const transTypeCol = isPostgres ? 'transaction_type' : 'transactionType';
+
   return knex('accounts_transactions')
-    .whereIn('referenceType', [
+    .whereIn(refTypeCol, [
       'OtherIncome',
       'OtherExpense',
       'OwnerDrawing',
@@ -9,7 +13,7 @@ exports.up = function (knex) {
       'TransferFromAccount',
     ])
     .update({
-      transactionType: knex.raw(`
+      [transTypeCol]: knex.raw(`
         CASE 
           WHEN REFERENCE_TYPE = 'OtherIncome' THEN 'OtherIncome'
           WHEN REFERENCE_TYPE = 'OtherExpense' THEN 'OtherExpense'
@@ -19,7 +23,7 @@ exports.up = function (knex) {
           WHEN REFERENCE_TYPE = 'TransferFromAccount' THEN 'TransferFromAccount'
         END
       `),
-      referenceType: knex.raw(`
+      [refTypeCol]: knex.raw(`
         CASE 
           WHEN REFERENCE_TYPE IN ('OtherIncome', 'OtherExpense', 'OwnerDrawing', 'OwnerContribution', 'TransferToAccount', 'TransferFromAccount') THEN 'CashflowTransaction'
           ELSE REFERENCE_TYPE
@@ -29,8 +33,12 @@ exports.up = function (knex) {
 };
 
 exports.down = function (knex) {
+  const isPostgres = knex.client.config.client === 'pg' || knex.client.config.client === 'postgresql';
+  const refTypeCol = isPostgres ? 'reference_type' : 'referenceType';
+  const transTypeCol = isPostgres ? 'transaction_type' : 'transactionType';
+
   return knex('accounts_transactions')
-    .whereIn('transactionType', [
+    .whereIn(transTypeCol, [
       'OtherIncome',
       'OtherExpense',
       'OwnerDrawing',
@@ -39,7 +47,7 @@ exports.down = function (knex) {
       'TransferFromAccount',
     ])
     .update({
-      referenceType: knex.raw(`
+      [refTypeCol]: knex.raw(`
       CASE 
         WHEN TRANSACTION_TYPE = 'OtherIncome' THEN 'OtherIncome'
         WHEN TRANSACTION_TYPE = 'OtherExpense' THEN 'OtherExpense'
@@ -50,7 +58,7 @@ exports.down = function (knex) {
         ELSE REFERENCE_TYPE
       END
     `),
-      transactionType: knex.raw(`
+      [transTypeCol]: knex.raw(`
       CASE 
         WHEN TRANSACTION_TYPE IN ('OtherIncome', 'OtherExpense', 'OwnerDrawing', 'OwnerContribution', 'TransferToAccount', 'TransferFromAccount') THEN NULL
         ELSE TRANSACTION_TYPE
