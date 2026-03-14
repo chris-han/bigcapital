@@ -44,11 +44,10 @@ export class TenantDBManager {
     const databaseName = this.getDatabaseName(tenant);
 
     const results = await this.systemKnex.raw(
-      'SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = "' +
-      databaseName +
-      '"',
+      'SELECT 1 FROM pg_database WHERE datname = ?',
+      [databaseName],
     );
-    return results[0].length > 0;
+    return results.rowCount > 0;
   }
 
   /**
@@ -62,9 +61,8 @@ export class TenantDBManager {
 
     await this.throwErrorIfTenantDBExists(tenant);
 
-    await this.systemKnex.raw(
-      `CREATE DATABASE ${databaseName} DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci`,
-    );
+    // PostgreSQL does not support DEFAULT CHARACTER SET syntax in CREATE DATABASE
+    await this.systemKnex.raw(`CREATE DATABASE ${databaseName}`);
   }
 
   /**

@@ -16,21 +16,28 @@ export const TenancyDatabaseProxyProvider = ClsModule.forFeatureAsync({
   inject: [ConfigService, ClsService],
   useFactory: async (configService: ConfigService, cls: ClsService) => () => {
     const organizationId = cls.get('organizationId');
-    const database = `bigcapital_tenant_${organizationId}`;
+    const dbNamePrefix = configService.get('tenantDatabase.dbNamePrefix') || 'bigcapital_tenant_';
+    const database = `${dbNamePrefix}${organizationId}`;
     const cachedInstance = lruCache.get(database);
 
     if (cachedInstance) {
       return cachedInstance;
     }
-    const knexInstance = knex({
-      client: configService.get('tenantDatabase.client'),
-      connection: {
+
+    const pgUrl = configService.get('systemDatabase.postgresUrl');
+    const connection = pgUrl
+      ? pgUrl.replace(/\/([^\/?]+)(\?.*)?$/, `/${database}$2`)
+      : {
         host: configService.get('tenantDatabase.host'),
         user: configService.get('tenantDatabase.user'),
         password: configService.get('tenantDatabase.password'),
         database,
         charset: 'utf8',
-      },
+      };
+
+    const knexInstance = knex({
+      client: configService.get('tenantDatabase.client'),
+      connection,
       migrations: {
         directory: configService.get('tenantDatabase.migrationsDir'),
         loadExtensions: ['.js'],
