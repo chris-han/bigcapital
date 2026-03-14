@@ -4,8 +4,11 @@ import { Injectable } from '@nestjs/common';
 import { Importable } from '../Import/Importable';
 import { CreateCustomer } from './commands/CreateCustomer.service';
 import { CreateCustomerDto } from './dtos/CreateCustomer.dto';
+import { ImportableService } from '@/modules/Import/decorators/Import.decorator';
+import { Customer } from './models/Customer';
 
 @Injectable()
+@ImportableService({ name: Customer.name })
 export class CustomersImportable extends Importable {
   constructor(private readonly createCustomerService: CreateCustomer) {
     super();

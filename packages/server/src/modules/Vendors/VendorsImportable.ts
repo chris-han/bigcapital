@@ -4,8 +4,11 @@ import { Injectable } from '@nestjs/common';
 import { Importable } from '../Import/Importable';
 import { CreateVendorService } from './commands/CreateVendor.service';
 import { CreateVendorDto } from './dtos/CreateVendor.dto';
+import { ImportableService } from '@/modules/Import/decorators/Import.decorator';
+import { Vendor } from './models/Vendor';
 
 @Injectable()
+@ImportableService({ name: Vendor.name })
 export class VendorsImportable extends Importable {
   constructor(
     private readonly createVendorService: CreateVendorService,
