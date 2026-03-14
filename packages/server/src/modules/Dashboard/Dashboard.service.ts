@@ -66,9 +66,11 @@ export class DashboardService {
     const tenantUser = await this.tenantUserModel()
       .query()
       .findOne('systemUserId', authorizedUser.id)
-      .withGraphFetched('role.permissions')
-      .throwIfNotFound();
+      .withGraphFetched('role.permissions');
 
+    if (!tenantUser || !tenantUser.role) {
+      return [];
+    }
     return tenantUser.role.slug === 'admin'
       ? [{ subject: 'all', action: 'manage' }]
       : this.transformRoleAbility(tenantUser.role.permissions);
