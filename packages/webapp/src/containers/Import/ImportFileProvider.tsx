@@ -10,6 +10,7 @@ import React, {
 export type EntityColumnField = {
   key: string;
   name: string;
+  mapName?: string;
   required?: boolean;
   hint?: string;
   group?: string;

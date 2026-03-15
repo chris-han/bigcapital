@@ -155,6 +155,7 @@ export interface IModelMetaFieldCommon2 {
   order?: number;
   unique?: number;
   features?: Array<any>;
+  mapName?: string;
 }
 
 export interface IModelMetaRelationField2 {

@@ -8,6 +8,7 @@ import {
   Body,
   Param,
   Query,
+  Res,
   UseInterceptors,
   UploadedFile,
   HttpCode,
@@ -22,7 +23,7 @@ import { ApiCommonHeaders } from '@/common/decorators/ApiCommonHeaders';
 @ApiTags('Import')
 @ApiCommonHeaders()
 export class ImportController {
-  constructor(private readonly importResourceApp: ImportResourceApplication) { }
+  constructor(private readonly importResourceApp: ImportResourceApplication) {}
 
   /**
    * Imports xlsx/csv to the given resource type.
@@ -87,8 +88,27 @@ export class ImportController {
   async downloadImportSample(
     @Query('resource') resource: string,
     @Query('format') format?: 'csv' | 'xlsx',
+    @Res({ passthrough: true }) res?: Response,
   ) {
-    return this.importResourceApp.sample(resource, format);
+    const data = await this.importResourceApp.sample(resource, format);
+
+    if (format === 'xlsx') {
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${resource}-sample.xlsx"`,
+      );
+    } else {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${resource}-sample.csv"`,
+      );
+    }
+    res.send(data);
   }
 
   /**

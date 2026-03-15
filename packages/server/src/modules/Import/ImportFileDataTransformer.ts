@@ -16,9 +16,7 @@ import { CurrencyParsingDTOs } from './_constants';
 
 @Injectable()
 export class ImportFileDataTransformer {
-  constructor(
-    private readonly resource: ResourceService,
-  ) { }
+  constructor(private readonly resource: ResourceService) {}
 
   /**
    * Parses the given sheet data before passing to the service layer.
@@ -30,7 +28,7 @@ export class ImportFileDataTransformer {
     importFile: any,
     importableFields: ResourceMetaFieldsMap,
     data: Record<string, unknown>[],
-    trx?: Knex.Transaction
+    trx?: Knex.Transaction,
   ): Promise<Record<string, any>[]> {
     // Sanitize the sheet data.
     const sanitizedData = sanitizeSheetData(data);
@@ -38,17 +36,17 @@ export class ImportFileDataTransformer {
     // Map the sheet columns key with the given map.
     const mappedDTOs = this.mapSheetColumns(
       sanitizedData,
-      importFile.mappingParsed
+      importFile.mappingParsed,
     );
     // Parse the mapped sheet values.
     const parsedValues = await this.parseExcelValues(
       importableFields,
       mappedDTOs,
-      trx
+      trx,
     );
     const aggregateValues = this.aggregateParsedValues(
       importFile.resource,
-      parsedValues
+      parsedValues,
     );
     return aggregateValues;
   }
@@ -61,7 +59,7 @@ export class ImportFileDataTransformer {
    */
   public aggregateParsedValues(
     resourceName: string,
-    parsedData: Record<string, any>[]
+    parsedData: Record<string, any>[],
   ): Record<string, any>[] {
     let _value = parsedData;
     const meta = this.resource.getResourceMeta(resourceName);
@@ -70,11 +68,11 @@ export class ImportFileDataTransformer {
       _value = aggregate(
         _value,
         meta.importAggregateBy,
-        meta.importAggregateOn
+        meta.importAggregateOn,
       );
     }
     return _value;
-  };
+  }
 
   /**
    * Maps the columns of the imported data based on the provided mapping attributes.
@@ -84,18 +82,31 @@ export class ImportFileDataTransformer {
    */
   public mapSheetColumns(
     body: Record<string, any>[],
-    map: ImportMappingAttr[]
+    map: ImportMappingAttr[],
   ): Record<string, any>[] {
-    return body.map((item) => {
+    console.log('[DEBUG] mapSheetColumns - map:', JSON.stringify(map, null, 2));
+    console.log(
+      '[DEBUG] mapSheetColumns - first row:',
+      JSON.stringify(body[0], null, 2),
+    );
+    const result = body.map((item) => {
       const newItem = {};
-      map
-        .filter((mapping) => !isUndefined(item[mapping.from]))
-        .forEach((mapping) => {
-          const toPath = getMapToPath(mapping.to, mapping.group);
-          newItem[toPath] = item[mapping.from];
-        });
+      map.forEach((mapping) => {
+        const toPath = getMapToPath(mapping.to, mapping.group);
+        newItem[toPath] = item[mapping.from];
+        if (mapping.to === 'displayName') {
+          console.log(
+            `[DEBUG] displayName mapping: from="${mapping.from}" to="${toPath}" value="${item[mapping.from]}"`,
+          );
+        }
+      });
       return newItem;
     });
+    console.log(
+      '[DEBUG] mapSheetColumns - first result row:',
+      JSON.stringify(result[0], null, 2),
+    );
+    return result;
   }
 
   /**
@@ -107,7 +118,7 @@ export class ImportFileDataTransformer {
   public async parseExcelValues(
     fields: ResourceMetaFieldsMap,
     valueDTOs: Record<string, any>[],
-    trx?: Knex.Transaction
+    trx?: Knex.Transaction,
   ): Promise<Record<string, any>[]> {
     // Create a model resolver function that uses ResourceService
     const modelResolver = (modelName: string) => {
@@ -120,7 +131,7 @@ export class ImportFileDataTransformer {
       // Clean up the undefined keys that not exist in resource fields.
       const _valueDTO = pickBy(
         valueDTO,
-        (value, key) => !isUndefined(fields[getFieldKey(key)])
+        (value, key) => !isUndefined(fields[getFieldKey(key)]),
       );
       // Keys of mapped values. key structure: `group.key` or `key`.
       const keys = Object.keys(_valueDTO);
@@ -135,7 +146,7 @@ export class ImportFileDataTransformer {
           set(acc, parsedKey, parsedValue);
           return acc;
         },
-        {}
+        {},
       );
     };
     return bluebird.map(valueDTOs, parseAsync, {

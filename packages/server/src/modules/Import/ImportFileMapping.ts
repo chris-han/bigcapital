@@ -28,6 +28,11 @@ export class ImportFileMapping {
     importId: string,
     maps: ImportMappingAttr[],
   ): Promise<ImportFileMapPOJO> {
+    console.log(
+      '[DEBUG] mapping endpoint - received maps:',
+      JSON.stringify(maps, null, 2),
+    );
+
     const importFile = await this.importModel
       .query()
       .findOne('filename', importId)
@@ -45,10 +50,16 @@ export class ImportFileMapping {
     this.validateDateFormatMapping(importFile.resource, maps);
 
     const mappingStringified = JSON.stringify(maps);
+    console.log('[DEBUG] Storing mapping:', mappingStringified);
 
     await this.importModel.query().findById(importFile.id).patch({
       mapping: mappingStringified,
     });
+
+    // Verify storage
+    const updated = await this.importModel.query().findById(importFile.id);
+    console.log('[DEBUG] Stored mapping in DB:', updated.mapping);
+    console.log('[DEBUG] Parsed mapping from DB:', updated.mappingParsed);
     return {
       import: {
         importId: importFile.importId,

@@ -52,7 +52,7 @@ export const transformValueToReq = (
  * @returns {Record<string, object | string>}
  */
 export const transformResToFormValues = (
-  value: { from: string; to: string , group: string }[],
+  value: { from: string; to: string; group: string }[],
 ): Record<string, object | string> => {
   return value?.reduce((acc, map) => {
     const path = map?.group ? `${map.group}.${map.to}` : map.to;
@@ -62,17 +62,19 @@ export const transformResToFormValues = (
 };
 
 /**
- * Retrieves the initial values of mapping form. 
- * @param {EntityColumn[]} entityColumns 
- * @param {SheetColumn[]} sheetColumns 
+ * Retrieves the initial values of mapping form.
+ * @param {EntityColumn[]} entityColumns
+ * @param {SheetColumn[]} sheetColumns
  */
 const getInitialDefaultValues = (
   entityColumns: EntityColumn[],
   sheetColumns: SheetColumn[],
 ) => {
   return entityColumns.reduce((acc, { fields, groupKey }) => {
-    fields.forEach(({ key, name }) => {
-      const _name = lowerCase(name);
+    fields.forEach(({ key, name, mapName }) => {
+      // Use mapName (language-independent) for auto-mapping, fallback to name
+      const matchName = mapName || name;
+      const _name = lowerCase(matchName);
       const _matched = sheetColumns.find(
         (column) => lowerCase(column) === _name,
       );

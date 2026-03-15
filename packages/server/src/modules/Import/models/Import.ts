@@ -56,9 +56,18 @@ export class ImportModel extends BaseModel {
   }
 
   public get mappingParsed() {
+    console.log(
+      '[DEBUG] mappingParsed - this.mapping type:',
+      typeof this.mapping,
+    );
+    console.log('[DEBUG] mappingParsed - this.mapping value:', this.mapping);
     try {
-      return JSON.parse(this.mapping);
-    } catch {
+      if (typeof this.mapping === 'string') {
+        return JSON.parse(this.mapping);
+      }
+      return this.mapping || [];
+    } catch (e) {
+      console.log('[DEBUG] mappingParsed - parse error:', e.message);
       return [];
     }
   }
