@@ -12,6 +12,7 @@ export const ACCOUNT_TYPE = {
   CREDIT_CARD: 'credit-card',
   TAX_PAYABLE: 'tax-payable',
   OTHER_CURRENT_LIABILITY: 'other-current-liability',
+  LONG_TERM_LIABILITY: 'long-term-liability',
   LOGN_TERM_LIABILITY: 'long-term-liability',
   NON_CURRENT_LIABILITY: 'non-current-liability',
 
@@ -26,9 +27,10 @@ export const ACCOUNT_TYPE = {
 export const ACCOUNT_PARENT_TYPE = {
   CURRENT_ASSET: 'current-asset',
   FIXED_ASSET: 'fixed-asset',
-  NON_CURRENT_ASSET: 'non-ACCOUNT_PARENT_TYPE.CURRENT_ASSET',
+  NON_CURRENT_ASSET: 'non-current-asset',
 
   CURRENT_LIABILITY: 'current-liability',
+  LONG_TERM_LIABILITY: 'long-term-liability',
   LOGN_TERM_LIABILITY: 'long-term-liability',
   NON_CURRENT_LIABILITY: 'non-current-liability',
 
@@ -41,7 +43,7 @@ export const ACCOUNT_ROOT_TYPE = {
   ASSET: 'asset',
   LIABILITY: 'liability',
   EQUITY: 'equity',
-  EXPENSE: 'expene',
+  EXPENSE: 'expense',
   INCOME: 'income',
 };
 
@@ -151,10 +153,10 @@ export const ACCOUNT_TYPES = [
   },
   {
     label: 'Long Term Liability',
-    key: ACCOUNT_TYPE.LOGN_TERM_LIABILITY,
+    key: ACCOUNT_TYPE.LONG_TERM_LIABILITY,
     normal: ACCOUNT_NORMAL.CREDIT,
     rootType: ACCOUNT_ROOT_TYPE.LIABILITY,
-    parentType: ACCOUNT_PARENT_TYPE.LOGN_TERM_LIABILITY,
+    parentType: ACCOUNT_PARENT_TYPE.LONG_TERM_LIABILITY,
     balanceSheet: false,
     incomeSheet: true,
   },
