@@ -93,7 +93,13 @@ export class AccountTransformer extends Transformer {
    * @returns {string}
    */
   protected accountTypeLabel = (account: Account): string => {
-    return this.context.i18n.t(account.accountTypeLabel);
+    const label = account.accountTypeLabel;
+    if (!label) {
+      // Return the raw account type or 'Unknown' if the label is not found
+      // This prevents i18n errors when account type is invalid/undefined
+      return account.accountType || 'Unknown';
+    }
+    return this.context.i18n.t(label);
   };
 
   /**
@@ -101,7 +107,13 @@ export class AccountTransformer extends Transformer {
    * @returns {string}
    */
   protected accountNormalFormatted = (account: Account): string => {
-    return this.context.i18n.t(account.accountNormalFormatted);
+    const normal = account.accountNormalFormatted;
+    if (!normal) {
+      // Return the raw account normal or empty string if not found
+      // This prevents i18n errors when account normal is invalid/undefined
+      return account.accountNormal || '';
+    }
+    return this.context.i18n.t(normal);
   };
 
   /**
