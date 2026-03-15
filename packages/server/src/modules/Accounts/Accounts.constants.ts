@@ -263,9 +263,8 @@ export const SeedAccounts = [
     name: `Drawings`,
     slug: 'drawings',
     account_type: 'equity',
-    code: '30003',
-    description:
-      'Goods purchased with the intention of selling these to customers',
+    code: '30004',
+    description: 'Withdrawals by the owner for personal use, reducing equity.',
     active: 1,
     index: 1,
     predefined: 1,
